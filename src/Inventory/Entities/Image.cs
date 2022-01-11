@@ -1,15 +1,12 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using Inventory.Data;
+using MongoDB.Bson;
+
 
 namespace Inventory.API.Entities
 {
-    public class Image
+    [BsonCollection("Images")]
+    public class Image : Document
     {
-        [BsonId]
-        public ObjectId Id { get; set; }
-
-        [BsonElement("Name")]
-        public string Name { get; set; }
         public ObjectId DocId { get; set; }
     }
 }

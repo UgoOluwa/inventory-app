@@ -1,4 +1,6 @@
-﻿namespace Inventory.API.Settings.Implementations
+﻿using Inventory.API.Settings.Interfaces;
+
+namespace Inventory.API.Settings.Implementations
 {
     public class ProductDatabaseSettings : IProductDatabaseSettings
     {

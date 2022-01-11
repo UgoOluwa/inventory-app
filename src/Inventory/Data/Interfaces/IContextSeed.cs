@@ -4,7 +4,7 @@ using MongoDB.Driver;
 
 namespace Inventory.API.Data.Interfaces
 {
-    public interface IProductContextSeed
+    public interface IContextSeed
     {
         Task SeedData(IMongoCollection<Product> productCollection, IMongoCollection<Image> imageCollection,
             IMongoDatabase database);

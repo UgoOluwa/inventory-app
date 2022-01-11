@@ -1,23 +1,18 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Catalog.API.Repositories;
 using Inventory.API.Data.Implementations;
 using Inventory.API.Data.Interfaces;
+using Inventory.API.Repositories.Implementations;
 using Inventory.API.Repositories.Interfaces;
-using Inventory.API.Settings;
+using Inventory.API.Services.Implementations;
 using Inventory.API.Settings.Implementations;
 using Inventory.API.Settings.Interfaces;
+using Inventory.Services;
+using Inventory.Services.Interfaces;
 using Microsoft.Extensions.Options;
 
 namespace Inventory
@@ -45,16 +40,17 @@ namespace Inventory
             #endregion
 
             services.AddControllers();
+            services.AddAutoMapper(typeof(AutoMapperProfile));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Inventory", Version = "v1" });
             });
 
-            services.AddTransient<IProductRepository, ProductRepository>();
-            services.AddTransient<IProductContext, ProductContext>();
-            services.AddTransient<IProductContextSeed, ProductContextSeed>();
-            services.AddTransient<IProductDatabaseSettings, ProductDatabaseSettings>();
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddTransient<IContext, Context>();
+            services.AddTransient<IContextSeed, ContextSeed>();
             services.AddTransient<IUtility, Utility>();
+            services.AddTransient<IProductService, ProductService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

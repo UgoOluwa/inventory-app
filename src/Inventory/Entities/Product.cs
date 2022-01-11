@@ -1,20 +1,15 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using Inventory.Data;
+using MongoDB.Bson;
+
 
 namespace Inventory.API.Entities
 {
-    public class Product
+    [BsonCollection("Products")]
+    public class Product : Document
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
-
-        [BsonElement("Name")]
-        public string Name { get; set; }
-        public string Category { get; set; }
-        public string Summary { get; set; }
         public string Description { get; set; }
         public ObjectId ImageId { get; set; }
         public decimal Price { get; set; }
     }
+
 }

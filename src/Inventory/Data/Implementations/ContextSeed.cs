@@ -3,8 +3,6 @@ using Inventory.API.Entities;
 using MongoDB.Driver;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Inventory.API.Data.Interfaces;
 using Inventory.API.Settings.Interfaces;
@@ -14,13 +12,13 @@ using MongoDB.Driver.GridFS;
 
 namespace Inventory.API.Data.Implementations
 {
-    public class ProductContextSeed : IProductContextSeed
+    public class ContextSeed : IContextSeed
     {
         private readonly IHostEnvironment _hostingEnvironment;
         private readonly IUtility _utility;
         private List<Image> imageList;
         private List<Product> productList;
-        public ProductContextSeed(IHostEnvironment hostingEnvironment, IUtility utility)
+        public ContextSeed(IHostEnvironment hostingEnvironment, IUtility utility)
         {
             _hostingEnvironment = hostingEnvironment;
             _utility = utility;
