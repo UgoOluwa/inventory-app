@@ -33,10 +33,9 @@ namespace Inventory.API.Repositories.Implementations
                 .FirstOrDefault())?.CollectionName;
         }
 
-        public virtual IEnumerable<TEntity> AsQueryable()
+        public virtual async Task<IEnumerable<TEntity>> GetAll()
         {
-            var e =  _collection.Find(p => true).ToList();
-            return e;
+            return  await _collection.Find(p => true).ToListAsync();
         }
 
         public virtual IEnumerable<TEntity> FilterBy(

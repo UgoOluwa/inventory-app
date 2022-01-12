@@ -9,7 +9,7 @@ namespace Inventory.API.Repositories.Interfaces
 {
     public interface IRepository<TEntity> where TEntity : IDocument
     {
-        IEnumerable<TEntity> AsQueryable();
+        Task<IEnumerable<TEntity>> GetAll();
 
         IEnumerable<TEntity> FilterBy(
             Expression<Func<TEntity, bool>> filterExpression);
