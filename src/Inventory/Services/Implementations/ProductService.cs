@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -32,39 +33,97 @@ namespace Inventory.API.Services.Implementations
         }
 
 
-        public async Task<SingleProductViewModel> CreateProduct(ProductViewModel product)
+        public async Task<SingleProductViewModel> CreateProduct(CreateProductDto product)
         {
-            var oldProduct = await _repository.FindOneAsync(x => x.Name == product.Name);
-            if (oldProduct != null)
+            try
             {
-                _logger.LogError($"Product with name: {product.Name}, already exists.");
-                return new SingleProductViewModel(){IsSuccessful = true, Message = $"Product with name: {product.Name}, already exists."};
+                var oldProduct = await _repository.FindOneAsync(x => x.Name == product.Name);
+                if (oldProduct != null)
+                {
+                    _logger.LogWarning($"Product with name: {product.Name}, already exists.");
+                    return new SingleProductViewModel(){IsSuccessful = true, Message = $"Product with name: {product.Name}, already exists."};
+                }
+
+                var newProduct = _mapper.Map<Product>(product);
+                newProduct.Id = ObjectId.GenerateNewId();
+
+                if (product.Image != null)
+                {
+                    var oldImage = await _imageRepository.FindOneAsync(x => x.Name == product.Name);
+                    if (oldImage != null)
+                    {
+                        _logger.LogWarning($"Image with name: {product.Name}, already exists.");
+                        return new SingleProductViewModel(){IsSuccessful = true, Message = $"Image with name: {product.Name}, already exists."};
+                    }
+                    var database =  _utility.GetDatabase();
+                    var imageId = await _utility.UploadNewFile(new GridFSBucket(database), product.Image, product.Name);
+                    var newImage = new Image()
+                    {
+                        Id =  ObjectId.GenerateNewId(),
+                        DocId = imageId,
+                        Name = product.Name
+                    };
+                    newProduct.ImageId = newImage.Id;
+                    await _imageRepository.InsertOneAsync(newImage);
+                }
+                await _repository.InsertOneAsync(newProduct);
+                var productViewModel= await GetProduct(newProduct.Id.ToString());
+
+
+                return new SingleProductViewModel(){Data = productViewModel.Data, IsSuccessful = true, Message = "successful"};
             }
-
-            var newProduct = _mapper.Map<Product>(product);
-            newProduct.Id = ObjectId.GenerateNewId();
-            await _repository.InsertOneAsync(newProduct);
-            var productViewModel= await GetProduct(newProduct.Id.ToString());
-
-
-            return new SingleProductViewModel(){Data = productViewModel.Data, IsSuccessful = true, Message = "successful"};
+            catch (Exception e)
+            {
+                _logger.LogError($"{e.Message}");
+                return new SingleProductViewModel(){Message = $"{e.Message}"};
+            }
         }
 
-
-        public async Task<SingleProductViewModel> UpdateProduct(ProductViewModel product)
+        public async Task<SingleProductViewModel> UpdateProduct(UpdateProductDto product)
         {
-            var oldProduct = await  _repository.FindByIdAsync(product.Id);
-            if (oldProduct == null)
+            try
             {
-                _logger.LogError($"Product with id: {product.Id}, hasn't been found in database.");
-                return new SingleProductViewModel(){IsSuccessful = true, Message = $"Product with id: {product.Id}, hasn't been found in database."};
+                var oldProduct = await  _repository.FindByIdAsync(product.Id);
+                if (oldProduct == null)
+                {
+                    _logger.LogError($"Product with id: {product.Id}, hasn't been found in database.");
+                    return new SingleProductViewModel(){IsSuccessful = true, Message = $"Product with id: {product.Id}, hasn't been found in database."};
+                }
+
+                var newProduct = _mapper.Map<Product>(product);
+                var oldImageBytes = await GetImageFile(oldProduct.ImageId);
+
+                if (product.Image != oldImageBytes)
+                {
+                    var oldImage = await _imageRepository.FindOneAsync(x => x.Name == product.Name);
+                    if (oldImage != null)
+                    {
+                        _logger.LogWarning($"Image with name: {product.Name}, already exists.");
+                        return new SingleProductViewModel(){IsSuccessful = true, Message = $"Image with name: {product.Name}, already exists."};
+                    }
+                    var database =  _utility.GetDatabase();
+                    var imageId = await _utility.UploadNewFile(new GridFSBucket(database), product.Image, product.Name);
+                    var newImage = new Image()
+                    {
+                        Id =  ObjectId.GenerateNewId(),
+                        DocId = imageId,
+                        Name = product.Name
+                    };
+                    newProduct.ImageId = newImage.Id;
+                    await _imageRepository.InsertOneAsync(newImage);
+                }
+
+                await _repository.ReplaceOneAsync(newProduct);
+                var productViewModel= await GetProduct(newProduct.Id.ToString());
+
+
+                return new SingleProductViewModel(){Data = productViewModel.Data, IsSuccessful = true, Message = "successful"};
             }
-
-            var newProduct = _mapper.Map<Product>(product);
-
-            await _repository.ReplaceOneAsync(newProduct);
-
-            return new SingleProductViewModel(){Data = product, IsSuccessful = true, Message = "successful"};
+            catch (Exception e)
+            {
+                _logger.LogError($"{e.Message}");
+                return new SingleProductViewModel(){Message = $"{e.Message}"};
+            }
         }
 
         public async Task<MultipleProductViewModel> GetProducts()
@@ -84,18 +143,25 @@ namespace Inventory.API.Services.Implementations
         
         public async Task<SingleProductViewModel> GetProduct(string id)
         {
-            var product = await  _repository.FindByIdAsync(id);
-            if (product == null)
+            try
             {
-                _logger.LogError($"Product with id: {id}, hasn't been found in database.");
-                return new SingleProductViewModel(){IsSuccessful = true, Message = $"Product with id: {id}, hasn't been found in database."};
+                var product = await  _repository.FindByIdAsync(id);
+                if (product == null)
+                {
+                    _logger.LogError($"Product with id: {id}, hasn't been found in database.");
+                    return new SingleProductViewModel(){IsSuccessful = true, Message = $"Product with id: {id}, hasn't been found in database."};
+                }
+
+                var productViewModel = _mapper.Map<ProductViewModel>(product);
+                productViewModel.Image = await GetImageFile(product.ImageId);
+
+                return new SingleProductViewModel(){Data = productViewModel, IsSuccessful = true, Message = "successful"};
             }
-
-            var productViewModel = _mapper.Map<ProductViewModel>(product);
-            productViewModel.Image = await GetImageFile(product.ImageId);
-            
-
-            return new SingleProductViewModel(){Data = productViewModel, IsSuccessful = true, Message = "successful"};
+            catch (Exception e)
+            {
+                _logger.LogError($"{e.Message}");
+                return new SingleProductViewModel(){Message = $"{e.Message}"};
+            }
         }
 
         public async Task DeleteProduct(string id)
@@ -108,7 +174,7 @@ namespace Inventory.API.Services.Implementations
            await _repository.DeleteManyAsync(x => true);
         }
 
-        private async Task<System.Drawing.Image> GetImageFile(ObjectId docId)
+        private async Task<byte[]> GetImageFile(ObjectId docId)
         {
             var imageData = await _imageRepository.FindByIdAsync(docId.ToString());
             if (imageData == null)
@@ -116,8 +182,8 @@ namespace Inventory.API.Services.Implementations
                 return null;
             }
             var database = _utility.GetDatabase();
-            var imageFile = await _utility.DownloadFile(new GridFSBucket(database), docId, imageData.Name);
-            return imageFile;
+            var imageBytes = await _utility.DownloadFile(new GridFSBucket(database), imageData.Name);
+            return imageBytes;
         }
     }
 }

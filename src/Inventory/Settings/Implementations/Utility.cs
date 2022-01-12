@@ -25,17 +25,19 @@ namespace Inventory.API.Settings.Implementations
 
             return t;
         }
+        public async Task<ObjectId> UploadNewFile(GridFSBucket fs, byte[] image, string fileName)
+        {
+            var t =  await Task.Run<ObjectId>(() => fs.UploadFromBytesAsync(fileName, image));
+            return t;
+        }
 
-        public async Task<Image> DownloadFile(GridFSBucket fs, ObjectId id, string fileName)
+        public async Task<byte[]> DownloadFile(GridFSBucket fs, string fileName)
         {
             var t = fs.DownloadAsBytesByNameAsync(fileName);
             Task.WaitAll(t);
             var bytes =  await t;
             
-            await using var newFs = new FileStream(fileName, FileMode.Create);
-            newFs.Write(bytes, 0, bytes.Length);
-
-            return FromStream(newFs);
+            return bytes;
         }
 
         public IMongoDatabase GetDatabase()

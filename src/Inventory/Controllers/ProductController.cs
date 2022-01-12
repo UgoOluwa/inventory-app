@@ -16,31 +16,28 @@ namespace Inventory.API.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
-        private readonly ILogger<ProductController> _logger;
 
         public ProductController(IProductService productService, ILogger<ProductController> logger)
         {
             _productService = productService ?? throw new ArgumentNullException(nameof(productService));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
 
         [HttpPost]
         [ProducesResponseType(typeof(SingleProductViewModel), (int)HttpStatusCode.Created)]
-        public async Task<ActionResult<Product>> CreateProduct([FromBody] ProductViewModel product)
+        public async Task<ActionResult<Product>> CreateProduct([FromBody] CreateProductDto product)
         {
-            await _productService.CreateProduct(product);
-        
-            return CreatedAtRoute("GetProduct", new { id = product.Id }, product);
+            var response = await _productService.CreateProduct(product);
+            return Ok(response);
         }
         
         
         [HttpPut]
         [ProducesResponseType(typeof(SingleProductViewModel), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> UpdateProduct([FromBody] ProductViewModel value)
+        public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductDto value)
         {
-            await _productService.UpdateProduct(value);
-            return Ok();
+            var response = await _productService.UpdateProduct(value);
+            return Ok(response);
         }
 
 

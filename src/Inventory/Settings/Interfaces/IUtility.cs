@@ -9,7 +9,8 @@ namespace Inventory.API.Settings.Interfaces
     public interface IUtility
     {
         Task<ObjectId> UploadFile(GridFSBucket fs, string path, string fileName);
-        Task<Image> DownloadFile(GridFSBucket fs, ObjectId id, string fileName);
+        Task<byte[]> DownloadFile(GridFSBucket fs, string fileName);
         IMongoDatabase GetDatabase();
+        Task<ObjectId> UploadNewFile(GridFSBucket fs, byte[] image, string fileName);
     }
 }
