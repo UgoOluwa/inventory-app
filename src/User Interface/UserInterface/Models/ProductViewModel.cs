@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Drawing;
-using MongoDB.Bson;
 
-namespace Inventory.API.Models
+namespace UserInterface.Models
 {
     public class ProductViewModel
     {

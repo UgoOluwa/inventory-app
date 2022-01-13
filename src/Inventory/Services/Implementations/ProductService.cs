@@ -135,7 +135,7 @@ namespace Inventory.API.Services.Implementations
             IEnumerable<ProductViewModel> productViewModels = productsList.ToList();
             foreach (var product in productViewModels)
             {
-                product.Image = await GetImageFile(product.ImageId);
+                product.Image = await GetImageFile(new ObjectId(product.ImageId));
             }
 
             return new MultipleProductViewModel(){Data = productViewModels, IsSuccessful = true, Message = "successful"};

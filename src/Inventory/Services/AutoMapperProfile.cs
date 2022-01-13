@@ -8,7 +8,7 @@ namespace Inventory.Services
     {
         public AutoMapperProfile()
         {
-            CreateMap<Product, ProductViewModel>().ReverseMap();
+            CreateMap<ProductViewModel, Product>().ReverseMap();
             CreateMap<Product, CreateProductDto>().ReverseMap();
             CreateMap<Product, UpdateProductDto>().ReverseMap();
         }
