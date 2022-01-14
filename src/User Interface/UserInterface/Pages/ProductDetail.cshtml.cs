@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -17,6 +18,7 @@ namespace UserInterface.Pages
         }
 
         public ProductViewModel Product { get; set; }
+        public FileContentResult Image { get; set; }
 
         public async Task<IActionResult> OnGetAsync(string productId)
         {
@@ -32,8 +34,15 @@ namespace UserInterface.Pages
             }
 
             Product = product.Data;
+            Image = File(product.Data.Image, "image/png");
+
 
             return Page();
         }
+
+        public IActionResult RetrieveImage(byte[] cover)
+        {
+            return cover != null ? File(cover, "image/jpg") : null;
+        } 
     }
 }

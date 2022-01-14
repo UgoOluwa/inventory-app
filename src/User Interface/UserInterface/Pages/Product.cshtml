@@ -25,7 +25,11 @@
                 <div class="card bg-light mb-3">
                     <div class="card-header bg-success text-white text-uppercase">Last product</div>
                     <div class="card-body">
-                        <img asp-append-version="true" class="img-fluid" src="data:image/png;base64,@Model.ProductList.LastOrDefault()?.Image" />
+                        @{
+                            var base64 = Convert.ToBase64String(Model.ProductList.LastOrDefault().Image);
+                            var imgSrc = String.Format("data:image/gif;base64,{0}", base64);
+                        }
+                        <img asp-append-version="true" class="img-fluid" src="@imgSrc" />
                         <h5 class="card-title">@Model.ProductList.LastOrDefault()?.Name</h5>
                         <p class="card-text">@Model.ProductList.LastOrDefault()?.Description</p>
                         <p class="bloc_left_price">@Model.ProductList.LastOrDefault()?.Price $</p>
@@ -51,9 +55,11 @@
                                 <li class="page-item disabled">
                                     <a class="page-link" href="#" tabindex="-1">Previous</a>
                                 </li>
-                                <li class="page-item"><a class="page-link" href="#">1</a></li>
                                 <li class="page-item active">
-                                    <a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>
+                                    <a class="page-link" href="#">1<span class="sr-only">(current)</span></a>
+                                </li>
+                                <li class="page-item ">
+                                    <a class="page-link" href="#">2 </a>
                                 </li>
                                 <li class="page-item"><a class="page-link" href="#">3</a></li>
                                 <li class="page-item">

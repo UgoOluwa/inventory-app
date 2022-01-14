@@ -25,7 +25,11 @@
             <div class="card bg-light mb-3">
                 <div class="card-body">
                     <a href="" data-toggle="modal" data-target="#productModal">
-                        <img class="img-fluid" src="data:image/png;base64,@Model.Product.Image" />
+                        @{
+                            var base64 = Convert.ToBase64String(Model.Product.Image);
+                            var imgSrc = String.Format("data:image/gif;base64,{0}", base64);
+                        }
+                        <img class="img-fluid" src="@imgSrc"/>
                         <p class="text-center">@Model.Product.Name</p>
                     </a>
                 </div>
