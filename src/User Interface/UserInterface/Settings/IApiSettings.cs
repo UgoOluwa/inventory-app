@@ -8,6 +8,6 @@ namespace UserInterface.Settings
     public interface IApiSettings
     {
         string BaseAddress { get; set; }
-        string ProductPath { get; set; }     
+        string InventoryPath { get; set; }     
     }
 }

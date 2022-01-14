@@ -13,8 +13,7 @@ namespace UserInterface.ApiCollection
     {
         private readonly IApiSettings _settings;
 
-        public InventoryApi(IHttpClientFactory factory, IApiSettings settings)
-            : base(factory)
+        public InventoryApi(IHttpClientFactory factory, IApiSettings settings) : base(factory)
         {
             _settings = settings;
         }
@@ -22,7 +21,7 @@ namespace UserInterface.ApiCollection
         public async Task<MultipleProductViewModel> GetProducts()
         {
             var message = new HttpRequestBuilder(_settings.BaseAddress)
-                               .SetPath(_settings.ProductPath)
+                               .SetPath(_settings.InventoryPath)
                                .HttpMethod(HttpMethod.Get)
                                .GetHttpMessage();
 
@@ -32,7 +31,7 @@ namespace UserInterface.ApiCollection
         public async Task<SingleProductViewModel> GetProduct(string id)
         {
             var message = new HttpRequestBuilder(_settings.BaseAddress)
-                               .SetPath(_settings.ProductPath)
+                               .SetPath(_settings.InventoryPath)
                                .AddToPath(id)
                                .HttpMethod(HttpMethod.Get)
                                .GetHttpMessage();
@@ -43,7 +42,7 @@ namespace UserInterface.ApiCollection
         public async Task<SingleProductViewModel> CreateProduct(CreateProductDto productModel)
         {
             var message = new HttpRequestBuilder(_settings.BaseAddress)
-                                .SetPath(_settings.ProductPath)
+                                .SetPath(_settings.InventoryPath)
                                 .HttpMethod(HttpMethod.Post)
                                 .GetHttpMessage();
 

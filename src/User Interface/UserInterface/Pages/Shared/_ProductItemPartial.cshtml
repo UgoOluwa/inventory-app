@@ -1,0 +1,14 @@
+﻿@model UserInterface.Models.ProductViewModel
+
+<div class="card">
+    <a asp-page="ProductDetail" asp-route-productId="@Model.Id"><img asp-append-version="true" class="card-img-top" src="data:image/png;base64,@Model.Image" alt="@Model.Name"></a>
+    <div class="card-body">
+        <h4 class="card-title"><a asp-page="ProductDetail" asp-route-productId="@Model.Id" class="color-main">@Model.Name</a></h4>
+        <p class="card-text">@Model.Description</p>
+        <div class="row">
+            <div class="col">
+                <p class="btn btn-danger btn-block">@Model.Price $</p>
+            </div>
+        </div>
+    </div>
+</div>
