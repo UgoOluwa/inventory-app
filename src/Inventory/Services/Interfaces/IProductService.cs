@@ -10,7 +10,7 @@ namespace Inventory.Services.Interfaces
         Task<SingleProductViewModel> UpdateProduct(UpdateProductDto product);
         Task<MultipleProductViewModel> GetProducts();
         Task<SingleProductViewModel> GetProduct(string id);
-        Task DeleteProduct(string id);
-        Task DeleteProducts();
+        Task<BaseResponse> DeleteProduct(string id);
+        Task<BaseResponse> DeleteProducts();
     }
 }

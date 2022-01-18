@@ -1,0 +1,114 @@
+﻿@page
+@model ProductModel
+@{
+    ViewData["Title"] = "Product";
+}
+
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item" data-toggle="modal" data-target="#createModal" style="cursor: pointer">Create</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-sm-3">
+            
+            @if (Model.ProductList.Any())
+            {
+                <div class="card bg-light mb-3">
+                    <div class="card-header bg-success text-white text-uppercase">Last product</div>
+                    <div class="card-body">
+                        @{
+                            var base64 = Convert.ToBase64String(Model.ProductList.LastOrDefault().Image);
+                            var imgSrc = String.Format("data:image/gif;base64,{0}", base64);
+                        }
+                        <img asp-append-version="true" class="img-fluid" src="@imgSrc" />
+                        <h5 class="card-title">@Model.ProductList.LastOrDefault()?.Name</h5>
+                        <p class="card-text">@Model.ProductList.LastOrDefault()?.Description</p>
+                        <p class="bloc_left_price">@Model.ProductList.LastOrDefault()?.Price $</p>
+                    </div>
+                </div>
+            }
+
+        </div>
+
+        <div class="col">
+            <div class="row">
+                
+                @foreach (var product in Model.ProductList)
+                {
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <partial name="_ProductItemPartial" model="@product" />
+                    </div>
+                }
+
+                <div class="col-12">
+                    <nav aria-label="...">
+                        <ul class="pagination">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                            <li class="page-item active">
+                                <a class="page-link" href="#">1<span class="sr-only">(current)</span></a>
+                            </li>
+                            <li class="page-item ">
+                                <a class="page-link" href="#">2 </a>
+                            </li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createModalLabel">Create New Product</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" asp-page-handler="Create" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="product-name" class="col-form-label">Product Name</label>
+                        <input type="text" class="form-control" id="product-name" asp-for="CreateProductDto.Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-price" class="col-form-label">Product Price</label>
+                        <input type="text" class="form-control" id="product-price" asp-for="CreateProductDto.Price"> 
+                    </div>
+                    <div class="form-group">
+                        <label for="product-description" class="col-form-label">Description</label>
+                        <textarea class="form-control" id="product-description" asp-for="CreateProductDto.Description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-image" class="col-form-label">Product Image</label>
+                        <input type="file" class="form-control" accept="image/png" data-msg-accept="Please upload a valid png image" id="product-image" asp-for="Image" required="">
+                    </div>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Product</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+

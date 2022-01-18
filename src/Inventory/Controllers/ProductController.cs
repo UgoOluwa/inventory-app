@@ -59,20 +59,20 @@ namespace Inventory.API.Controllers
             return Ok(product);
         }
         
-        [HttpDelete("{id:length(24)}")]
-        [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
+        [HttpDelete("{id:length(24)}", Name = "DeleteProduct")]
+        [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> DeleteProductById(string id)
         {
-            await _productService.DeleteProduct(id);
-            return Ok();
+            var response = await _productService.DeleteProduct(id);
+            return Ok(response);
         }
         
         [HttpDelete]
-        [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> DeleteProducts()
         {
-            await _productService.DeleteProducts();
-            return Ok();
+            var response = await _productService.DeleteProducts();
+            return Ok(response);
         }
     }
 }
