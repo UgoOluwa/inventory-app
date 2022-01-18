@@ -9,5 +9,7 @@ namespace UserInterface.ApiCollection.Interfaces
         Task<MultipleProductViewModel> GetProducts();
         Task<SingleProductViewModel> GetProduct(string id);
         Task<SingleProductViewModel> CreateProduct(CreateProductDto model);
+        Task<SingleProductViewModel> UpdateProduct(UpdateProductDto productModel);
+        Task<BaseResponse> DeleteProduct(string productId);
     }
 }

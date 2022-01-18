@@ -92,15 +92,15 @@ namespace Inventory.API.Services.Implementations
 
                 var newProduct = _mapper.Map<Product>(product);
                 var oldImageBytes = await GetImageFile(oldProduct.ImageId);
+                newProduct.ImageId = oldProduct.ImageId;
 
-                if (product.Image != oldImageBytes)
+                //check if user is changing image
+                if (product.Image != null && product.Image != oldImageBytes)
                 {
-                    var oldImage = await _imageRepository.FindOneAsync(x => x.Name == product.Name);
-                    if (oldImage != null)
-                    {
-                        _logger.LogWarning($"Image with name: {product.Name}, already exists.");
-                        return new SingleProductViewModel(){IsSuccessful = true, Message = $"Image with name: {product.Name}, already exists."};
-                    }
+                    //delete old image
+                    await _imageRepository.DeleteByIdAsync(oldProduct.ImageId.ToString());
+
+                    // add new image
                     var database =  _utility.GetDatabase();
                     var imageId = await _utility.UploadNewFile(new GridFSBucket(database), product.Image, product.Name);
                     var newImage = new Image()
@@ -164,14 +164,51 @@ namespace Inventory.API.Services.Implementations
             }
         }
 
-        public async Task DeleteProduct(string id)
+        public async Task<BaseResponse> DeleteProduct(string id)
         {
-           await _repository.DeleteByIdAsync(id);
+            try
+            {
+                var oldProduct = await  _repository.FindByIdAsync(id);
+                if (oldProduct == null)
+                {
+                    _logger.LogError($"Product with id: {id}, hasn't been found in database.");
+                    return new BaseResponse(){IsSuccessful = false, Message = $"Product with id: {id}, hasn't been found in database."};
+                } 
+                await _imageRepository.DeleteByIdAsync(oldProduct.ImageId.ToString());
+                await _repository.DeleteByIdAsync(id);
+
+                return new BaseResponse(){IsSuccessful = true, Message = "Operation successful"};
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"{e.Message}");
+                return new BaseResponse(){IsSuccessful = false, Message = $"{e.Message}"};
+            }
         }
         
-        public async Task DeleteProducts()
+        public async Task<BaseResponse> DeleteProducts()
         {
-           await _repository.DeleteManyAsync(x => true);
+            try
+            {
+                var products = await _repository.GetAll();
+                foreach (var product in products)
+                {
+                    var oldProduct = await  _repository.FindByIdAsync(product.Id.ToString());
+                    await _imageRepository.DeleteByIdAsync(oldProduct.ImageId.ToString());
+                    await _repository.DeleteByIdAsync(product.Id.ToString());
+                }
+
+                await _repository.DeleteManyAsync(x => true);
+                await _imageRepository.DeleteManyAsync(x => true);
+
+                return new BaseResponse(){IsSuccessful = true, Message = "Operation successful"};
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"{e.Message}");
+                return new BaseResponse(){IsSuccessful = false, Message = $"{e.Message}"};
+            }
         }
 
         private async Task<byte[]> GetImageFile(ObjectId docId)

@@ -51,5 +51,28 @@ namespace UserInterface.ApiCollection
 
             return await SendRequest<SingleProductViewModel>(message);
         }
+        public async Task<SingleProductViewModel> UpdateProduct(UpdateProductDto productModel)
+        {
+            var message = new HttpRequestBuilder(_settings.BaseAddress)
+                                .SetPath(_settings.InventoryPath)
+                                .HttpMethod(HttpMethod.Put)
+                                .GetHttpMessage();
+
+            var json = JsonConvert.SerializeObject(productModel);
+            message.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            return await SendRequest<SingleProductViewModel>(message);
+        }
+        
+        public async Task<BaseResponse> DeleteProduct(string productId)
+        {
+            var message = new HttpRequestBuilder(_settings.BaseAddress)
+                .SetPath(_settings.InventoryPath)
+                .AddToPath(productId)
+                .HttpMethod(HttpMethod.Delete)
+                .GetHttpMessage();
+
+            return await SendRequest<BaseResponse>(message);
+        }
     }
 }
