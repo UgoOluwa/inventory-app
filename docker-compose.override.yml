@@ -1,0 +1,37 @@
+version: '3.4'
+
+services:
+
+  inventorydb:
+    container_name: inventorydb
+    restart: always
+    volumes:
+      - ${WEBAPP_STORAGE_HOME}/site:/data/db
+    ports:
+      - "27017:27017"
+
+  inventory.api:
+    container_name: inventoryapi
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ProductDatabaseSettings:ConnectionString=mongodb://inventorydb:27017"
+    depends_on:
+      - inventorydb
+    ports:
+      - "8000:80"
+    volumes:
+      - ${HOME}/.microsoft/usersecrets/:/root/.microsoft/usersecrets
+      - ${HOME}/.aspnet/https:/root/.aspnet/https/
+      
+  userinterface:
+    container_name: userinterface
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ApiSettings:BaseAddress=inventory.api"
+    depends_on:
+            - inventory.api
+    ports:
+      - "8003:80"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
