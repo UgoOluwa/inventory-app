@@ -1,0 +1,20 @@
+version: '3.4'
+
+services:
+
+  inventorydb:
+    image: mongo
+
+  inventory.api:
+    image: ${DOCKER_REGISTRY-}inventoryapi
+    build:
+      context: .
+      dockerfile: src/Inventory/Dockerfile
+
+
+  userinterface:
+    image: ${DOCKER_REGISTRY-}userinterface
+    build:
+      context: .
+      dockerfile: src/User Interface/UserInterface/Dockerfile
+
