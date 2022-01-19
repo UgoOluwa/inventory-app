@@ -23,7 +23,11 @@ namespace UserInterface.Pages
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var response = await _inventoryApi.GetProducts();
+            var response =  await _inventoryApi.GetProducts(new GetProductsPaginatedDto()
+            {
+                Page = 1,
+                PageSize = 5
+            });
             if (response != null && response.IsSuccessful)
             {
                 ProductList = response.Data;

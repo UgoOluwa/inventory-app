@@ -37,6 +37,7 @@ namespace Inventory.API.Services.Implementations
         {
             try
             {
+                //Check if product name already exist
                 var oldProduct = await _repository.FindOneAsync(x => x.Name == product.Name);
                 if (oldProduct != null)
                 {
@@ -47,6 +48,7 @@ namespace Inventory.API.Services.Implementations
                 var newProduct = _mapper.Map<Product>(product);
                 newProduct.Id = ObjectId.GenerateNewId();
 
+                //Add image file to product
                 if (product.Image != null)
                 {
                     var oldImage = await _imageRepository.FindOneAsync(x => x.Name == product.Name);
@@ -63,6 +65,7 @@ namespace Inventory.API.Services.Implementations
                         DocId = imageId,
                         Name = product.Name
                     };
+                    //link image to product
                     newProduct.ImageId = newImage.Id;
                     await _imageRepository.InsertOneAsync(newImage);
                 }
@@ -126,19 +129,33 @@ namespace Inventory.API.Services.Implementations
             }
         }
 
-        public async Task<MultipleProductViewModel> GetProducts()
+        public async Task<MultipleProductViewModel> GetProducts(GetProductsPaginatedDto request)
         {
-            var products = await  _repository.GetAll();
-
-            var productsList = _mapper.Map<IEnumerable<ProductViewModel>>(products);
-
-            IEnumerable<ProductViewModel> productViewModels = productsList.ToList();
-            foreach (var product in productViewModels)
+            try
             {
-                product.Image = await GetImageFile(new ObjectId(product.ImageId));
-            }
+                // set default page number and page size
+                request.Page = request.Page <= 0 ? 1 : request.Page;
+                request.PageSize = request.PageSize <= 0 ? 100 : request.PageSize; 
 
-            return new MultipleProductViewModel(){Data = productViewModels, IsSuccessful = true, Message = "successful"};
+                var products = await  _repository.GetAll(request.Page, request.PageSize);
+
+                var productsList = _mapper.Map<IEnumerable<ProductViewModel>>(products.data);
+
+                IEnumerable<ProductViewModel> productViewModels = productsList.ToList();
+
+                //get image linked to each product
+                foreach (var product in productViewModels)
+                {
+                    product.Image = await GetImageFile(new ObjectId(product.ImageId));
+                }
+
+                return new MultipleProductViewModel(){Data = productViewModels, IsSuccessful = true, Message = "successful", TotalPages = products.totalPages};
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"{e.Message}");
+                return new MultipleProductViewModel{Message = $"{e.Message}"};
+            }
         }
         
         public async Task<SingleProductViewModel> GetProduct(string id)
@@ -173,8 +190,10 @@ namespace Inventory.API.Services.Implementations
                 {
                     _logger.LogError($"Product with id: {id}, hasn't been found in database.");
                     return new BaseResponse(){IsSuccessful = false, Message = $"Product with id: {id}, hasn't been found in database."};
-                } 
+                }
+                //delete image linked to product
                 await _imageRepository.DeleteByIdAsync(oldProduct.ImageId.ToString());
+                //then delete product
                 await _repository.DeleteByIdAsync(id);
 
                 return new BaseResponse(){IsSuccessful = true, Message = "Operation successful"};
@@ -197,10 +216,7 @@ namespace Inventory.API.Services.Implementations
                     await _imageRepository.DeleteByIdAsync(oldProduct.ImageId.ToString());
                     await _repository.DeleteByIdAsync(product.Id.ToString());
                 }
-
-                await _repository.DeleteManyAsync(x => true);
-                await _imageRepository.DeleteManyAsync(x => true);
-
+                
                 return new BaseResponse(){IsSuccessful = true, Message = "Operation successful"};
 
             }

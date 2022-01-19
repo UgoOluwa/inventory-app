@@ -10,7 +10,7 @@ namespace Inventory.API.Repositories.Interfaces
     public interface IRepository<TEntity> where TEntity : IDocument
     {
         Task<IEnumerable<TEntity>> GetAll();
-
+        Task<(int totalPages, IReadOnlyList<TEntity> data)> GetAll(int page, int pageSize);
         IEnumerable<TEntity> FilterBy(
             Expression<Func<TEntity, bool>> filterExpression);
 
