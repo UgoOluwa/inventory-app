@@ -18,12 +18,15 @@ namespace UserInterface.ApiCollection
             _settings = settings;
         }
 
-        public async Task<MultipleProductViewModel> GetProducts()
+        public async Task<MultipleProductViewModel> GetProducts(GetProductsPaginatedDto request)
         {
             var message = new HttpRequestBuilder(_settings.BaseAddress)
-                               .SetPath(_settings.InventoryPath)
-                               .HttpMethod(HttpMethod.Get)
+                               .SetPath($"{_settings.InventoryPath}/GetAll")
+                               .HttpMethod(HttpMethod.Post)
                                .GetHttpMessage();
+
+            var json = JsonConvert.SerializeObject(request);
+            message.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
             return await SendRequest<MultipleProductViewModel>(message);
         }

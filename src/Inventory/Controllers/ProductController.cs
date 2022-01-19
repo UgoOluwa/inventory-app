@@ -41,11 +41,11 @@ namespace Inventory.API.Controllers
         }
 
 
-        [HttpGet]
+        [HttpPost("GetAll")]
         [ProducesResponseType(typeof(MultipleProductViewModel), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<ProductViewModel>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductViewModel>>> GetProducts(GetProductsPaginatedDto request)
         {
-            var products = await _productService.GetProducts();
+            var products = await _productService.GetProducts(request);
             return Ok(products);
         }
 

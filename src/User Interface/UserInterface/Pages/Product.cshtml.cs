@@ -28,14 +28,29 @@ namespace UserInterface.Pages
         
         [BindProperty]
         public IFormFile Image { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public int PageNumber { get; set; } = 1;
+
+        [BindProperty(SupportsGet = true)]
+        public int PageSize { get; set; } = 10;
+        public decimal TotalRecords { get; set; }
+        public int CurrentPage { get; set; }
         
         public async Task<IActionResult> OnGetAsync()
         {
-            var productList = await _inventoryApi.GetProducts();
+            CurrentPage = PageNumber;
+
+            var productList = await _inventoryApi.GetProducts(new GetProductsPaginatedDto()
+            {
+                Page = PageNumber,
+                PageSize = PageSize
+            });
 
             if (productList != null && productList.IsSuccessful)
             {
                 ProductList = productList.Data;
+                TotalRecords = productList.TotalPages * PageSize;
             }
 
             return Page();

@@ -8,7 +8,7 @@ namespace Inventory.Services.Interfaces
     {
         Task<SingleProductViewModel> CreateProduct(CreateProductDto product);
         Task<SingleProductViewModel> UpdateProduct(UpdateProductDto product);
-        Task<MultipleProductViewModel> GetProducts();
+        Task<MultipleProductViewModel> GetProducts(GetProductsPaginatedDto request);
         Task<SingleProductViewModel> GetProduct(string id);
         Task<BaseResponse> DeleteProduct(string id);
         Task<BaseResponse> DeleteProducts();
