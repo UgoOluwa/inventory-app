@@ -9,20 +9,18 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+    
 jobs:
-  build_deploy:
-    runs-on: ubuntu-16.04
+  build:
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Build and deploy the Docker image
-      env: 
-        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        APP_NAME: ${{ 'inventory-app-interim' }}
-      run: |
-        cd ./
-        docker login --username=_ --password=$HEROKU_API_KEY registry.heroku.com
-        heroku container:push web -a $APP_NAME
-        heroku container:release web -a $APP_NAME
- 
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build, Push and Deploy to Heroku #set the whatever name you want to this step
+        id: heroku
+        uses: snithyanantham/docker-compose-multiple-apps-heroku-deploy@v1.0  # use the latest version of the action
+        with:
+          email: ${{ secrets.HEROKU_EMAIL }} # your heroku email
+          api_key: ${{ secrets.HEROKU_API_KEY }} # your  heroku api key
+          docker_compose_file: './docker-compose.yml' # set the path to the folder where the docker-compose file is located
+          heroku_apps: '[{"imagename":"userinterface","appname":"shopping-temp-app","apptype":"web"},{"imagename":"inventory.api","appname":"inventory-app-interim","apptype":"web"}]' # List of Docker Image name, Heroku app and Heroku app type
