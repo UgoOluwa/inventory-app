@@ -19,4 +19,6 @@ RUN dotnet publish "Inventory.API.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Inventory.API.dll"]
+#ENTRYPOINT ["dotnet", "Inventory.API.dll"]
+# heroku uses the following
+CMD ASPNETCORE_URLS=http://*:$PORT dotnet Inventory.API.dll
