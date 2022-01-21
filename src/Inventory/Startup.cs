@@ -59,7 +59,6 @@ namespace Inventory
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                
             }
             else
             {
